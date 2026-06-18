@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мадейра — Маршрут 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --primary:  #365C42;
+  --secondary:#A8B59A;
+  --accent:   #C46F4E;
+  --bg:       #E9DFC8;
+  --bg2:      #DDD3BB;
+  --card:     #F5EFE0;
+  --border:   rgba(54,92,66,0.15);
+  --text:     #303030;
+  --muted:    #7A8F72;
+  --light:    rgba(168,181,154,0.8);
+  --teal-bg:  rgba(54,92,66,0.07);
+  --terra-bg: rgba(196,111,78,0.08);
+}
+body {
+  font-family: 'Manrope', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── HERO ── */
+.hero {
+  background: url('hero.jpeg') center center / cover no-repeat;
+  padding: 64px 24px 56px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(32,50,35,0.55) 0%, rgba(20,35,22,0.72) 100%);
+}
+.hero-inner { position: relative; z-index: 1; }
+.hero-eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(247,246,242,0.45);
+  margin-bottom: 14px;
+}
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.6rem;
+  color: #F7F6F2;
+  font-weight: 400;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+.hero h1 em { font-style: italic; color: #C58E5B; }
+.hero-dates {
+  font-size: 0.85rem;
+  color: rgba(247,246,242,0.5);
+  letter-spacing: 0.12em;
+  margin-top: 4px;
+}
+.hero-wave { position: absolute; bottom: -1px; left: 0; right: 0; height: 40px; }
+
+/* ── STATS ── */
+.stats {
+  display: flex; justify-content: center;
+  background: var(--card); border-bottom: 1px solid var(--border); flex-wrap: wrap;
+}
+.stat { padding: 18px 32px; text-align: center; border-right: 1px solid var(--border); }
+.stat:last-child { border-right: none; }
+.stat-v { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: var(--primary); line-height: 1; }
+.stat-l { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--muted); margin-top: 3px; }
+
+/* ── TIMELINE ── */
+.tl-wrap { max-width: 860px; margin: 0 auto; padding: 28px 24px; }
+.tl-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--muted); margin-bottom: 12px; }
+.tl-bar { display: flex; height: 28px; border-radius: 6px; overflow: hidden; gap: 3px; }
+.tl-seg {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.68rem; font-weight: 500; letter-spacing: 0.04em; color: #fff;
+}
+.tl-f { flex: 4; background: var(--secondary); border-radius: 5px 0 0 5px; }
+.tl-s { flex: 4; background: var(--primary); }
+.tl-o { flex: 8; background: var(--accent); border-radius: 0 5px 5px 0; }
+.tl-dates { display: flex; margin-top: 8px; font-size: 0.68rem; color: var(--muted); }
+.tl-d1 { min-width: 40px; }
+.tl-d2 { flex: 4; text-align: center; }
+.tl-d3 { flex: 4; text-align: center; }
+.tl-d4 { flex: 8; text-align: right; }
+
+/* ── MAIN ── */
+main { max-width: 860px; margin: 0 auto; padding: 40px 24px 100px; }
+
+/* ── LOC BLOCK ── */
+.loc { margin-bottom: 60px; }
+.loc-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+.loc-pin { font-size: 0.7rem; color: var(--accent); font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; }
+.loc-name { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: var(--primary); font-weight: 600; }
+.loc-nights { font-size: 0.75rem; color: var(--muted); margin-left: 2px; }
+
+.loc-acc {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; margin-bottom: 18px;
+  background: var(--teal-bg); border: 1px solid var(--border);
+  border-radius: 8px; font-size: 0.82rem;
+}
+.loc-acc-name { color: var(--primary); font-weight: 500; text-decoration: none; }
+a.loc-acc-name:hover { text-decoration: underline; }
+.loc-acc-addr { color: var(--muted); }
+
+/* ── MAP ── */
+.map-wrap {
+  margin-bottom: 24px; border-radius: 10px;
+  overflow: hidden; border: 1px solid var(--border);
+  height: 260px;
+}
+
+/* ── CATEGORY LABEL ── */
+.cat-label {
+  font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.22em;
+  color: var(--muted); margin: 4px 0 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.cat-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── CARDS ── */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-bottom: 20px; }
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  
+  
+  overflow: hidden;
+}
+
+
+
+
+/* ── HIKE CARD ── */
+.hike-card { border-top: 3px solid var(--border); }
+.hike-card.included { border-top-color: var(--secondary); }
+.hike-card .card-top { padding: 14px 16px 10px; }
+.card-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.97rem; color: var(--primary);
+  margin-bottom: 8px;
+  display: flex; align-items: flex-start; gap: 8px;
+}
+.card-name .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border); flex-shrink: 0; margin-top: 6px;
+  transition: background 0.2s;
+}
+.hike-card.included .card-name .dot { background: var(--secondary); }
+
+/* badges */
+.badges { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+.badge {
+  font-size: 0.63rem; padding: 3px 8px; border-radius: 20px;
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--muted);
+}
+.badge.hard   { background: rgba(197,142,91,0.1); border-color: rgba(197,142,91,0.4); color: #8a5a20; }
+.badge.medium { background: rgba(93,138,135,0.1); border-color: rgba(93,138,135,0.35); color: var(--secondary); }
+.badge.easy   { background: rgba(32,75,87,0.07); border-color: rgba(32,75,87,0.2); color: var(--primary); }
+.badge.closed { background: rgba(180,60,60,0.07); border-color: rgba(180,60,60,0.25); color: #903030; }
+
+/* transfer */
+.transfer {
+  font-size: 0.75rem; color: var(--muted);
+  padding: 8px 16px; background: var(--bg2);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 6px;
+}
+.transfer strong { color: var(--primary); font-weight: 500; }
+
+/* expand */
+.expand-btn {
+  width: 100%; background: none; border: none; border-top: 1px solid var(--border);
+  padding: 8px; font-size: 0.67rem; color: var(--muted); cursor: pointer;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  transition: color 0.15s, background 0.15s;
+}
+.expand-btn:hover { color: var(--primary); background: var(--teal-bg); }
+.card-details { display: none; padding: 0 16px 14px; }
+.card-details.open { display: block; }
+.detail-sec { margin-top: 12px; }
+.detail-sec h4 {
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--muted); margin-bottom: 4px;
+}
+.detail-sec p, .detail-sec li { font-size: 0.8rem; color: var(--text); line-height: 1.55; }
+.detail-sec ul { padding-left: 16px; }
+.detail-sec li { margin-bottom: 2px; }
+.detail-sec .note {
+  background: var(--terra-bg); border: 1px solid rgba(197,142,91,0.3);
+  border-radius: 6px; padding: 8px 10px; font-size: 0.77rem; color: #7a4a10;
+  margin-top: 4px;
+}
+.detail-sec .note-teal {
+  background: var(--teal-bg); border: 1px solid rgba(93,138,135,0.3);
+  border-radius: 6px; padding: 8px 10px; font-size: 0.77rem; color: var(--primary);
+  margin-top: 4px;
+}
+.booking-block {
+  margin-top: 10px;
+  background: rgba(197,142,91,0.06); border: 1px solid rgba(197,142,91,0.3);
+  border-radius: 8px; padding: 10px 12px;
+}
+.booking-block h5 {
+  font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--accent); margin-bottom: 8px;
+}
+.booking-block ol { padding-left: 16px; font-size: 0.77rem; color: var(--text); line-height: 1.6; }
+.booking-block li { margin-bottom: 3px; }
+.booking-block a { color: var(--accent); font-weight: 500; }
+.booking-block .booking-price {
+  font-size: 0.75rem; color: var(--accent); margin-top: 8px; font-weight: 500;
+  padding-top: 6px; border-top: 1px solid rgba(197,142,91,0.25);
+}
+
+/* ── PLACE CARD ── */
+.place-card { border-top: 3px solid var(--border); }
+.place-card.included { border-top-color: var(--accent); }
+.place-card .card-top { padding: 10px 16px; display: flex; align-items: center; gap: 10px; }
+.place-card .card-name { font-size: 0.88rem; flex: 1; margin-bottom: 0; font-weight: 500; color: var(--primary); }
+.place-card .card-name .dot { background: var(--border); }
+.place-card.included .card-name .dot { background: var(--accent); }
+.place-dist { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+
+/* ── FOOTER ── */
+.footer {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(233,223,200,0.96);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  padding: 12px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.footer-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill {
+  font-size: 0.72rem; color: var(--primary);
+  background: var(--teal-bg); border: 1px solid var(--border);
+  border-radius: 20px; padding: 4px 12px; font-weight: 500;
+}
+.copy-btn {
+  font-size: 0.72rem; color: var(--primary);
+  background: none; border: 1.5px solid var(--primary);
+  border-radius: 20px; padding: 6px 18px; cursor: pointer;
+  font-weight: 500; transition: all 0.2s; letter-spacing: 0.04em;
+}
+.copy-btn:hover { background: var(--primary); color: #F7F6F2; }
+
+/* instruction */
+.instruction {
+  text-align: center; font-size: 0.72rem; color: var(--muted);
+  margin-bottom: 36px; letter-spacing: 0.06em;
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Португалия · Атлантика</div>
+    <h1><em>Мадейра</em></h1>
+    <div class="hero-dates">25 июня — 11 июля 2026 · 17 дней</div>
+  </div>
+  <svg class="hero-wave" viewBox="0 0 1200 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,20 C300,40 600,0 900,20 C1050,30 1150,10 1200,20 L1200,40 L0,40 Z" fill="#E9DFC8"/>
+  </svg>
+</header>
+
+
+<!-- TIMELINE -->
+<div style="background:var(--card); border-bottom:1px solid var(--border);">
+<div class="tl-wrap">
+  <div class="tl-label">Хронология поездки</div>
+  <div class="tl-bar">
+    <div class="tl-seg tl-f">Funchal</div>
+    <div class="tl-seg tl-s">São Vicente</div>
+    <div class="tl-seg tl-o">Fajã da Ovelha</div>
+  </div>
+  <div class="tl-dates">
+    <div class="tl-d1">25 июн</div>
+    <div class="tl-d2">29 июн</div>
+    <div class="tl-d3">3 июл</div>
+    <div class="tl-d4">11 июл</div>
+  </div>
+</div>
+</div>
+
+<main>
+
+<!-- ════════════════════════ FUNCHAL ════════════════════════ -->
+<div class="loc">
+  <div class="loc-header">
+    <span class="loc-pin">📍 Локация 1</span>
+    <span class="loc-name">Funchal</span>
+    <span class="loc-nights">4 ночи</span>
+  </div>
+  <div class="loc-acc">
+    <span>🏠</span>
+    <a href="https://www.booking.com/hotel/pt/averomar-funchal-centro.en-gb.html" target="_blank" class="loc-acc-name">A ver o mar rooms ↗</a>
+    <span class="loc-acc-addr">· Funchal city center · 25–29 июня</span>
+  </div>
+  <div class="map-wrap" style="height:320px">
+    <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1mLh7gR3j_ws140FhaDGpaZup7Sb2KtU&ehbc=2E312F" width="100%" height="100%" style="border:none;display:block"></iframe>
+  </div>
+
+  <div class="cat-label">🥾 Хайки</div>
+  <div class="cards">
+
+    <div class="card hike-card included" data-id="h1" data-loc="funchal" data-type="hike">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Pico do Arieiro · Stairway to Heaven + PR3 Ecological Park</div>
+        <div class="badges">
+          <span class="badge" style="background:rgba(54,92,66,0.1);border-color:rgba(54,92,66,0.35);color:var(--primary);font-weight:500">📅 27 июня</span>
+          <span class="badge hard">● Сложный</span>
+          <span class="badge">9.6 км всего</span>
+          <span class="badge">~5 ч</span>
+        </div>
+        <div class="transfer">🚗 <strong>~25 км · 40 мин</strong> · <strong style="color:var(--accent)">Pico Transfers · 35 €</strong> · трансфер ✓ · <strong style="color:var(--accent)">билет SIMplifica ✓</strong></div>
+      </div>
+      <button class="expand-btn" onclick="expandCard(this)">▸ подробнее</button>
+      <div class="card-details">
+        <div class="detail-sec">
+          <h4>Маршрут — два отрезка в один день</h4>
+          <p><strong>Часть 1:</strong> 1.2 км от Pico do Arieiro по знаменитой лестнице ("Stairway to Heaven") до смотровой Ninho da Manta и Pedra Rija Viewpoint + 1.2 км обратно.</p>
+          <p style="margin-top:6px"><strong>Часть 2:</strong> PR3 от Pico do Arieiro до Ecological Park и обратно.</p>
+          <p style="margin-top:6px">Итого: <strong>9.6 км · ~5 часов</strong>. Старт и финиш — Pico do Arieiro.</p>
+        </div>
+        <div class="detail-sec">
+          <h4>Трейлхед</h4>
+          <p>Парковка у смотровой Pico do Arieiro (1818 м), ER-202. Бесплатно.</p>
+        </div>
+        <div class="detail-sec">
+          <h4>Трансфер</h4>
+          <p class="note-teal">✓ Забронировано · <strong>Pico Transfers</strong> · 35 €</p>
+        </div>
+        <div class="detail-sec">
+          <h4>Взять с собой</h4>
+          <ul>
+            <li>Тёплый слой — наверху холодно даже летом</li>
+            <li>Дождевик (погода меняется быстро)</li>
+            <li>Фонарик на случай тоннелей</li>
+            <li>≥ 2 л воды + перекус (5 часов на ногах)</li>
+            <li>Нескользящая подошва — крутые ступени</li>
+          </ul>
+        </div>
+        <div class="detail-sec">
+          <p class="note-teal">💡 Выходи до рассвета — вид с Pico do Arieiro в золотой час незабываем. Stairway to Heaven лучше до толпы.</p>
+          <div class="booking-block" style="margin-top:10px">
+            <h5>🎟 Входной билет · SIMplifica · 4.50 €</h5>
+            <ol>
+              <li>Бронировать здесь: <a href="https://simplifica.madeira.gov.pt/services/78-82-2592" target="_blank">simplifica.madeira.gov.pt</a></li>
+              <li>При необходимости смени язык сайта в меню.</li>
+              <li>Пролистай вниз до кнопки <em>"see availability"</em> → открой выпадающий список.</li>
+              <li>Выбери: <strong>"PR1 Vereda do Areeiro até ou Miradouro da Pedra Rija"</strong></li>
+              <li>Выбери дату и любой временной слот с доступностью для <strong>non-residents</strong>. Время не проверяют, только дату.</li>
+              <li>Нажми <em>"Confirm"</em> → затем кнопку <em>"Request"</em> внизу справа.</li>
+              <li>Заполни email, количество человек и т.д.</li>
+              <li>На вопрос <em>"Add a new reservation?"</em> — выбери <strong>"No"</strong>.</li>
+              <li>Обязательно заверши оплату на последней странице — без оплаты бронь автоматически отменяется через 24 часа.</li>
+            </ol>
+            <div class="booking-price">Стоимость: 4.50 € / человек</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hike-card included" data-id="h3" data-loc="funchal" data-type="hike">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>PR8 · Ponta de São Lourenço</div>
+        <div class="badges">
+          <span class="badge" style="background:rgba(54,92,66,0.1);border-color:rgba(54,92,66,0.35);color:var(--primary);font-weight:500">📅 28 июня</span>
+          <span class="badge medium">● Средний</span>
+          <span class="badge">7 км туда-обратно</span>
+          <span class="badge">↑ 470 м</span>
+          <span class="badge">2–3 ч</span>
+        </div>
+        <div class="transfer">🚗 <strong>~30 км · 35 мин</strong> · авто; автобус SAM 113 — 1.5 ч</div>
+      </div>
+      <button class="expand-btn" onclick="expandCard(this)">▸ подробнее</button>
+      <div class="card-details">
+        <div class="detail-sec">
+          <h4>Маршрут</h4>
+          <p>Самый восточный мыс Мадейры — открытый, без деревьев, с видами на базальтовые скалы и Atlantic Ocean. Парковка Baía d'Abra → смотровая Miradouro do Ponta do Furado.</p>
+        </div>
+        <div class="detail-sec">
+          <h4>Взять с собой</h4>
+          <ul>
+            <li>Солнцезащитный крем — тени нет</li>
+            <li>Головной убор + ветровка</li>
+            <li>≥ 1.5 л воды</li>
+          </ul>
+        </div>
+        <div class="detail-sec">
+          <p class="note-teal">💡 Приезжай до 9 утра — парковка быстро заполняется. Один из лучших хайков для морских видов.</p>
+          <div class="booking-block" style="margin-top:10px">
+            <h5>🎟 Входной билет · SIMplifica · 4.50 €</h5>
+            <ol>
+              <li>Бронировать: <a href="https://simplifica.madeira.gov.pt/services/78-82-2592" target="_blank">simplifica.madeira.gov.pt</a></li>
+              <li>В выпадающем списке выбери <strong>PR8 Vereda da Ponta de São Lourenço</strong></li>
+              <li>Выбери дату и любой слот для <strong>non-residents</strong>. Подтверди и оплати — иначе бронь отменится через 24 ч.</li>
+            </ol>
+            <div class="booking-price">Стоимость: 4.50 € / человек</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /hikes funchal -->
+
+  <div class="cat-label" style="margin-top:6px">🗺️ Места</div>
+  <div class="cards">
+
+    <div class="card place-card included" data-id="p2" data-loc="funchal" data-type="place">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Câmara de Lobos</div>
+        <div class="place-dist">🚌 ~9 км · 15 мин</div>
+      </div>
+      <div style="padding:0 16px 12px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        Живописная рыбацкая деревня с разноцветными лодками в гавани. Черчилль приезжал сюда рисовать. Родина понши — местного крепкого напитка.
+      </div>
+    </div>
+
+    <div class="card place-card included" data-id="p3" data-loc="funchal" data-type="place">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Cabo Girão</div>
+        <div class="place-dist">🚌 ~15 км · 20 мин</div>
+      </div>
+      <div style="padding:0 16px 12px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        Один из самых высоких морских утёсов Европы — 580 м. Стеклянный пол на смотровой: под ногами вертикальный обрыв и океан. По дороге из Câmara de Lobos.
+      </div>
+    </div>
+
+    <div class="card place-card included" data-id="p4" data-loc="funchal" data-type="place">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Eira do Serrado</div>
+        <div class="place-dist">🚗 ~10 км · 20 мин</div>
+      </div>
+      <div style="padding:0 16px 12px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        Смотровая на высоте 1094 м над долиной Curral das Freiras. Отвесные горы со всех сторон — как дно кратера. Отправная точка перед спуском в деревню.
+      </div>
+    </div>
+
+    <div class="card place-card included" data-id="p5" data-loc="funchal" data-type="place">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Curral das Freiras</div>
+        <div class="place-dist">🚗 ~14 км · 25 мин</div>
+      </div>
+      <div style="padding:0 16px 12px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        «Долина монахинь» — деревня в кольце гор, куда в XVI веке бежали монахини от пиратов. Каштановые рощи, узкие улочки, каштановый ликёр и хлеб.
+      </div>
+    </div>
+
+  </div>
+</div><!-- /funchal -->
+
+<!-- ════════════════════════ SÃO VICENTE ════════════════════════ -->
+<div class="loc">
+  <div class="loc-header">
+    <span class="loc-pin">📍 Локация 2</span>
+    <span class="loc-name">São Vicente</span>
+    <span class="loc-nights">4 ночи</span>
+  </div>
+  <div class="loc-acc">
+    <span>🏠</span>
+    <a href="https://www.booking.com/hotel/pt/the-waves-hostel.en-gb.html" target="_blank" class="loc-acc-name">The Waves Hostel by Amazing Madeira ↗</a>
+    <span class="loc-acc-addr">· Rua da Fonte Velha 9 · 29 июн – 3 июл</span>
+  </div>
+  <div class="map-wrap" style="height:320px">
+    <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1mUC5kqoK3zz2MM6kIQNj7ERkpm4uLak&ehbc=2E312F" width="100%" height="100%" style="border:none;display:block"></iframe>
+  </div>
+
+  <div class="cat-label">🥾 Хайки</div>
+  <div class="cards">
+
+    <div class="card hike-card included" data-id="h4" data-loc="sao" data-type="hike">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>PR9 · Caldeirão Verde</div>
+        <div class="badges">
+          <span class="badge medium">● Средний</span>
+          <span class="badge">17.4 км туда-обратно</span>
+          <span class="badge">↑ ~300 м</span>
+          <span class="badge">5–6.5 ч</span>
+        </div>
+        <div class="transfer">🚗 <strong>~25 км · 40 мин</strong> от жилья · парковка Queimadas</div>
+      </div>
+      <div style="padding:0 16px 10px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        Левадный путь через лавровый лес Laurisilva (UNESCO) с четырьмя тоннелями. Финиш — водопад Caldeirão Verde в амфитеатре из базальта. Один из красивейших маршрутов острова.
+      </div>
+      <button class="expand-btn" onclick="expandCard(this)">▸ подробнее</button>
+      <div class="card-details">
+        <div class="detail-sec">
+          <h4>Маршрут</h4>
+          <p>Левадный путь через лавровый лес Laurisilva (UNESCO) с четырьмя тоннелями. Финиш — водопад Caldeirão Verde. Один из красивейших маршрутов острова.</p>
+        </div>
+        <div class="detail-sec">
+          <h4>Взять с собой</h4>
+          <ul>
+            <li>Фонарик — 4 длинных тоннеля, в которых темно</li>
+            <li>Дождевик — в тоннелях капает сверху</li>
+            <li>≥ 2 л воды + еда (длинный день)</li>
+          </ul>
+        </div>
+        <div class="detail-sec">
+          <p class="note">⚠️ Ограниченное число мест в день — бронируй заранее.</p>
+          <div class="booking-block" style="margin-top:10px">
+            <h5>🎟 Входной билет · SIMplifica · 4.50 €</h5>
+            <ol>
+              <li>Бронировать: <a href="https://simplifica.madeira.gov.pt/services/78-82-2592" target="_blank">simplifica.madeira.gov.pt</a></li>
+              <li>В выпадающем списке выбери <strong>PR9 Levada do Caldeirão Verde</strong></li>
+              <li>Выбери дату и любой слот для <strong>non-residents</strong>. Подтверди и оплати — иначе бронь отменится через 24 ч.</li>
+            </ol>
+            <div class="booking-price">Стоимость: 4.50 € / человек</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hike-card included" data-id="h5" data-loc="sao" data-type="hike">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>PR16 · Fajã do Rodrigues</div>
+        <div class="badges">
+          <span class="badge easy">● Лёгкий</span>
+          <span class="badge">7.8 км туда-обратно</span>
+          <span class="badge">↑ ~200 м</span>
+          <span class="badge">3–3.5 ч</span>
+        </div>
+        <div class="transfer">🚗 <strong>~7 км · 12 мин</strong> · ближайший хайк из всех!</div>
+      </div>
+      <div style="padding:0 16px 10px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        Левада через тоннели, вырубленные в базальте вручную, с каскадами водопадов и стенами из мха и папоротников. Лёгкий, но очень атмосферный — хорош как первая прогулка после переезда.
+      </div>
+      <button class="expand-btn" onclick="expandCard(this)">▸ подробнее</button>
+      <div class="card-details">
+        <div class="detail-sec">
+          <h4>Маршрут</h4>
+          <p>Левада через тоннели, вырубленные в базальте вручную, с каскадами водопадов и стенами из мха и папоротников. Старт у Fajã da Ama.</p>
+        </div>
+        <div class="detail-sec">
+          <h4>Взять с собой</h4>
+          <ul>
+            <li>Фонарик — обязательно!</li>
+            <li>Водонепроницаемая обувь</li>
+            <li>≥ 1 л воды</li>
+          </ul>
+        </div>
+        <div class="detail-sec">
+          <p class="note-teal">💡 Самый близкий хайк от хостела — отличный вариант для первого дня в São Vicente.</p>
+          <div class="booking-block" style="margin-top:10px">
+            <h5>🎟 Входной билет · SIMplifica · 4.50 €</h5>
+            <ol>
+              <li>Бронировать: <a href="https://simplifica.madeira.gov.pt/services/78-82-2592" target="_blank">simplifica.madeira.gov.pt</a></li>
+              <li>В выпадающем списке выбери <strong>PR16 Levada Fajã do Rodrigues</strong></li>
+              <li>Выбери дату и любой слот для <strong>non-residents</strong>. Подтверди и оплати — иначе бронь отменится через 24 ч.</li>
+            </ol>
+            <div class="booking-price">Стоимость: 4.50 € / человек</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cat-label" style="margin-top:6px">🗺️ Места</div>
+  <div class="cards">
+
+    <div class="card place-card included" data-id="p8" data-loc="sao" data-type="place">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Fanal Forest</div>
+        <div class="place-dist">🚕 ~20 км · такси</div>
+      </div>
+      <div style="padding:0 16px 12px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        Лавровый лес с многовековыми деревьями на плато Paul da Serra. В тумане выглядит мистически — как декорация к Властелину колец. Лучше всего ранним утром.
+      </div>
+    </div>
+
+    <div class="card place-card included" data-id="p9" data-loc="sao" data-type="place">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Porto Moniz</div>
+        <div class="place-dist">🚌 ~35 км · автобус</div>
+      </div>
+      <div style="padding:0 16px 12px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        Деревня на северо-западном краю острова с природными лавовыми бассейнами прямо у океана — можно купаться. Дорога вдоль северного берега сама по себе очень красивая.
+      </div>
+    </div>
+
+    <div class="card place-card included" data-id="p10" data-loc="sao" data-type="place">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Seixal</div>
+        <div class="place-dist">🚌 ~15 км · по дороге в Porto Moniz</div>
+      </div>
+      <div style="padding:0 16px 12px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        Чёрный вулканический пляж и водопад у дороги, который буквально падает на проезжающие машины. Все останавливаются. Удобная остановка по пути в Porto Moniz.
+      </div>
+    </div>
+
+    <div class="card place-card included" data-id="p11" data-loc="sao" data-type="place">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Véu da Noiva Viewpoint</div>
+        <div class="place-dist">🚌 ~12 км · по дороге в Seixal</div>
+      </div>
+      <div style="padding:0 16px 12px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        «Фата невесты» — смотровая с видом на высокий водопад, падающий прямо в океан. Быстрая остановка 15–20 минут, по дороге между São Vicente и Seixal.
+      </div>
+    </div>
+
+    <div class="card place-card included" data-id="p12" data-loc="sao" data-type="place">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Santana</div>
+        <div class="place-dist">🚌 ~25 км · автобус на восток</div>
+      </div>
+      <div style="padding:0 16px 12px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        Деревня с традиционными треугольными домиками-пальеиро с цветными соломенными крышами. В другую сторону от Porto Moniz — отдельный день на восток.
+      </div>
+    </div>
+
+  </div>
+</div><!-- /sao -->
+
+<!-- ════════════════════════ FAJÃ DA OVELHA ════════════════════════ -->
+<div class="loc">
+  <div class="loc-header">
+    <span class="loc-pin">📍 Локация 3</span>
+    <span class="loc-name">Fajã da Ovelha</span>
+    <span class="loc-nights">8 ночей</span>
+  </div>
+  <div class="loc-acc">
+    <span>🏡</span>
+    <a href="https://www.airbnb.com/rooms/553512885141801955?source_impression_id=p3_1781707597_P3PyF_E-U2gKUJJF" target="_blank" class="loc-acc-name">Villa in Fajã da Ovelha (Philippe) ↗</a>
+    <span class="loc-acc-addr">· Caminho São Lourenço, Quinta São Lourenço · 3–11 июля</span>
+  </div>
+  <div class="map-wrap" style="height:320px">
+    <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1Rj5UOVFMWRChGad_EW1lKv7Y_FOLPDM&ehbc=2E312F" width="100%" height="100%" style="border:none;display:block"></iframe>
+  </div>
+
+  <div class="cat-label">🥾 Хайки</div>
+  <div class="cards">
+
+    <div class="card hike-card included" data-id="h6" data-loc="faja" data-type="hike">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>PR6 · Levada das 25 Fontes</div>
+        <div class="badges">
+          <span class="badge medium">● Средний</span>
+          <span class="badge">~11 км туда-обратно</span>
+          <span class="badge">↑ ~350 м</span>
+          <span class="badge">3–5 ч</span>
+        </div>
+        <div class="transfer">🚗 <strong>~23 км · 35 мин</strong> · Rabaçal по ER-105</div>
+      </div>
+      <button class="expand-btn" onclick="expandCard(this)">▸ подробнее</button>
+      <div class="card-details">
+        <div class="detail-sec">
+          <h4>Маршрут</h4>
+          <p>Самый популярный хайк острова. Вдоль левады к скрытому бассейну с 25 источниками в окружении лаврового леса.</p>
+        </div>
+        <div class="detail-sec">
+          <h4>Трейлхед</h4>
+          <p>Rabaçal Forestry House, ER-105. От парковки — шаттл вниз (~2€) или пешком 30 мин. Приезжай рано — к полудню очень людно.</p>
+        </div>
+        <div class="detail-sec">
+          <h4>Взять с собой</h4>
+          <ul>
+            <li>≥ 2 л воды + перекус</li>
+            <li>Треккинговые ботинки</li>
+            <li>Дождевик (облачный лес)</li>
+          </ul>
+        </div>
+        <div class="detail-sec">
+          <p class="note-teal">💡 Удобно совместить с PR6.1 Risco в один день — маршруты расходятся в начале.</p>
+          <div class="booking-block" style="margin-top:10px">
+            <h5>🎟 Входной билет · SIMplifica · 4.50 €</h5>
+            <ol>
+              <li>Бронировать: <a href="https://simplifica.madeira.gov.pt/services/78-82-2592" target="_blank">simplifica.madeira.gov.pt</a></li>
+              <li>В выпадающем списке выбери <strong>PR6 Levada das 25 Fontes</strong></li>
+              <li>Выбери дату и любой слот для <strong>non-residents</strong>. Подтверди и оплати — иначе бронь отменится через 24 ч.</li>
+            </ol>
+            <div class="booking-price">Стоимость: 4.50 € / человек</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hike-card included" data-id="h7" data-loc="faja" data-type="hike">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>PR6.1 · Levada do Risco</div>
+        <div class="badges">
+          <span class="badge easy">● Лёгкий</span>
+          <span class="badge">3 км туда-обратно</span>
+          <span class="badge">↑ ~100 м</span>
+          <span class="badge">~2 ч</span>
+        </div>
+        <div class="transfer">🚗 <strong>~23 км · 35 мин</strong> · та же парковка что PR6</div>
+      </div>
+      <button class="expand-btn" onclick="expandCard(this)">▸ подробнее</button>
+      <div class="card-details">
+        <div class="detail-sec">
+          <h4>Маршрут</h4>
+          <p>От Rabaçal вдоль левады к водопаду Risco (~100 м высоты) — один из самых высоких водопадов Мадейры. Лёгкая тропа, достижима за 1 ч.</p>
+        </div>
+        <div class="detail-sec">
+          <p class="note-teal">💡 Начни с Risco, вернись, потом иди на 25 Fontes — так удобнее всего объединить оба маршрута.</p>
+          <div class="booking-block" style="margin-top:10px">
+            <h5>🎟 Входной билет · SIMplifica · 4.50 €</h5>
+            <ol>
+              <li>Бронировать: <a href="https://simplifica.madeira.gov.pt/services/78-82-2592" target="_blank">simplifica.madeira.gov.pt</a></li>
+              <li>В выпадающем списке выбери <strong>PR6.1 Levada do Risco</strong></li>
+              <li>Выбери дату и любой слот для <strong>non-residents</strong>. Подтверди и оплати — иначе бронь отменится через 24 ч.</li>
+            </ol>
+            <div class="booking-price">Стоимость: 4.50 € / человек</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hike-card included" data-id="h9" data-loc="faja" data-type="hike">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Levada da Ponta do Pargo</div>
+        <div class="badges">
+          <span class="badge medium">● Средний</span>
+          <span class="badge">13.2 км петля</span>
+          <span class="badge">↑ 607 м</span>
+          <span class="badge">4–5 ч</span>
+        </div>
+        <div class="transfer">🚕 <strong>~15 км · такси</strong> от виллы · самый близкий хайк в западной части</div>
+      </div>
+      <button class="expand-btn" onclick="expandCard(this)">▸ подробнее</button>
+      <div class="card-details">
+        <div class="detail-sec">
+          <h4>Маршрут</h4>
+          <p>Петля вдоль старой левады на западном краю острова. Сочетает участок вдоль канала, отрезок по побережью и финал через деревенские поля. Рядом — водопад Garganta Funda.</p>
+        </div>
+        <div class="detail-sec">
+          <h4>Трейлхед</h4>
+          <p>Ищи в Google Maps: <strong>Pedregal Ponta do Pargo</strong> (не «Levada Ponta do Pargo» — даст другую точку). ~15 км от виллы на такси.</p>
+        </div>
+        <div class="detail-sec">
+          <h4>Взять с собой</h4>
+          <ul>
+            <li>≥ 1.5 л воды</li>
+            <li>Треккинговая обувь</li>
+            <li>Ветровка — западное побережье ветреное</li>
+          </ul>
+        </div>
+        <div class="detail-sec">
+          <p class="note-teal">💡 Не является нумерованным PR-маршрутом, поэтому, возможно, не требует билета через SIMplifica — уточни перед выходом.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cat-label" style="margin-top:6px">🗺️ Места и активности</div>
+  <div class="cards">
+
+    <div class="card place-card included" data-id="p13" data-loc="faja" data-type="place">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Whale Watching (Calheta)</div>
+        <div class="place-dist">🚕 ~18 км · такси</div>
+      </div>
+      <div style="padding:0 16px 12px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        Туры из марины Calheta. Мадейра — одно из лучших мест в Европе для наблюдения за китами: кашалоты, дельфины, иногда синие киты. 2–3 часа в открытом океане.
+      </div>
+    </div>
+
+    <div class="card place-card included" data-id="p15" data-loc="faja" data-type="place">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Paul do Mar</div>
+        <div class="place-dist">🚶 ~8 км · пешком или такси</div>
+      </div>
+      <div style="padding:0 16px 12px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        Деревня на узкой полоске земли между скалами и океаном. Одно из самых изолированных мест острова. Хорошие волны, атмосферно, немноголюдно.
+      </div>
+    </div>
+
+    <div class="card place-card included" data-id="p16" data-loc="faja" data-type="place">
+      <div class="card-top" >
+        <div class="card-name"><div class="dot"></div>Jardim do Mar</div>
+        <div class="place-dist">🚶 рядом с Paul do Mar</div>
+      </div>
+      <div style="padding:0 16px 12px; font-size:0.78rem; color:var(--mid); line-height:1.5">
+        Соседняя деревня на скалистом мысу. Узкие мощёные улочки, цветущие террасы, закаты над океаном. Можно дойти пешком из Paul do Mar.
+      </div>
+    </div>
+
+  </div>
+</div><!-- /faja -->
+
+</main>
+
+
+<script>
+function expandCard(btn) {
+  const details = btn.nextElementSibling;
+  const open = details.classList.toggle('open');
+  btn.textContent = open ? '▾ свернуть' : '▸ подробнее';
+  btn.style.color = open ? 'var(--primary)' : '';
+  btn.style.background = open ? 'var(--teal-bg)' : '';
+}
+</script>
+</body>
+</html>
